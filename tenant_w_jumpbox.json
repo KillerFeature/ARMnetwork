@@ -6,7 +6,7 @@
             "type": "string",
             "defaultValue": "sdv001"
         },
-        "_artifactsLocation": {"type":"string", "defaultValue":"https://github.com/KillerFeature/"}
+        "_artifactsLocation": {"type":"string", "defaultValue":"https://raw.githubusercontent.com/KillerFeature/ARMnetwork/master"},
         "jumpboxname":{
             "type": "string",
             "defaultValue": "jumpbox"
@@ -15,7 +15,7 @@
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
         },
-        "domainName":{"type":"string", "defaultValue":"sdv001"},
+        "domainName":{"type":"string", "defaultValue":"sdv001.net"},
 
         "networkSecurityGroupRules": {
             "type": "array",
@@ -154,8 +154,15 @@
                         "createOption": "fromImage",
                         "managedDisk": {
                             "storageAccountType": "[parameters('osDiskType')]"
-                        },
-                        "dataDisks": [
+                        }
+                        
+                    },
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter-smalldisk",
+                        "version": "latest"
+                    },"dataDisks": [
                         {
                             "name": "[concat(variables('dcVmName'), '_DataDisk')]",
                             "caching": "None",
@@ -167,13 +174,6 @@
                             "lun": 0
                         }
                     ]
-                    },
-                    "imageReference": {
-                        "publisher": "MicrosoftWindowsServer",
-                        "offer": "WindowsServer",
-                        "sku": "2019-Datacenter-smalldisk",
-                        "version": "latest"
-                    }
                 },
                 "networkProfile": {
                     "networkInterfaces": [
