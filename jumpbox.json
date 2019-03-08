@@ -12,6 +12,7 @@
                         "networkSecurityGroupName": {
                             "type": "string"
                         },
+                        "nsgId": {"type": "string"},
                         "subnetName": {
                             "type": "string"
                         },
@@ -47,7 +48,7 @@
                     },
                     "variables": {
                         "networkInterfaceName": "[concat(parameters('jumpboxname'),'-nic')]",
-                        "nsgId": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', parameters('networkSecurityGroupName'))]",
+                        "nsgId": "[parameters('nsgId')]",
                         "vnetId": "[parameters('virtualNetworkId')]",
                         "subnetRef": "[concat(variables('vnetId'), '/subnets/', parameters('subnetName'))]",
                         "publicIpAddressName":"[concat(parameters('jumpboxname'),'-ip')]",
@@ -60,7 +61,6 @@
                             "apiVersion": "2018-10-01",
                             "location": "[parameters('location')]",
                             "dependsOn": [
-                                "[concat('Microsoft.Network/networkSecurityGroups/', parameters('networkSecurityGroupName'))]",
                                 "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]"
                             ],
                             "properties": {
