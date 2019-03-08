@@ -6,6 +6,7 @@
             "type": "string",
             "defaultValue": "sdv001"
         },
+        "_artifactsLocation": {"type":"string", "defaultValue":"https://github.com/KillerFeature/"}
         "jumpboxname":{
             "type": "string",
             "defaultValue": "jumpbox"
@@ -14,6 +15,8 @@
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
         },
+        "domainName":{"type":"string", "defaultValue":"sdv001"},
+
         "networkSecurityGroupRules": {
             "type": "array",
             "defaultValue": [
@@ -151,7 +154,19 @@
                         "createOption": "fromImage",
                         "managedDisk": {
                             "storageAccountType": "[parameters('osDiskType')]"
+                        },
+                        "dataDisks": [
+                        {
+                            "name": "[concat(variables('dcVmName'), '_DataDisk')]",
+                            "caching": "None",
+                            "createOption": "Empty",
+                            "diskSizeGB": 20,
+                            "managedDisk": {
+                                "storageAccountType": "Standard_LRS"
+                            },
+                            "lun": 0
                         }
+                    ]
                     },
                     "imageReference": {
                         "publisher": "MicrosoftWindowsServer",
@@ -177,6 +192,39 @@
                     }
                 }
             },
+            "resources": [
+                {
+                    "type": "extensions",
+                    "name": "CreateADForest",
+                    "apiVersion": "2017-03-30",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('dcVmName'))]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Powershell",
+                        "type": "DSC",
+                        "typeHandlerVersion": "2.19",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "ModulesUrl": "[concat(parameters('_artifactsLocation'), '/DSC/CreateADPDC.zip')]",
+                            "ConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+                            "Properties": {
+                                "DomainName": "[parameters('domainName')]",
+                                "AdminCreds": {
+                                    "UserName": "[parameters('adminUsername')]",
+                                    "Password": "PrivateSettingsRef:AdminPassword"
+                                }
+                            }
+                        },
+                        "protectedSettings": {
+                            "Items": {
+                                "AdminPassword": "[parameters('adminPassword')]"
+                            }
+                        }
+                    }
+                }
+            ],
             "tags": {}
         },
         {
